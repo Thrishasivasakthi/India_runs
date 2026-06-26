@@ -1,0 +1,18 @@
+# Data files
+*.zip
+[PUB]*/
+candidates.jsonl
+
+# Debug/test files
+check_*.py
+test_*.py
+debug_*.py
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# OS
+.DS_Store
+Thumbs.db
