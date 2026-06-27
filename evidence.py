@@ -229,6 +229,14 @@ def compute_ecs(features: Dict[str, float]) -> Dict[str, Any]:
     log_sum = sum(w * math.log(s) for w, s in zip(weights, scores))
     ecs = math.exp(log_sum / total_weight)
 
+    # JD-specific ECS bonus: candidates with strong domain evidence
+    jd_match_fields = ["jd_match_retrieval", "jd_match_ranking", "jd_match_embeddings", "jd_match_evaluation"]
+    jd_match_count = sum(1 for f in jd_match_fields if features.get(f, 0) > 0)
+    if jd_match_count >= 3:
+        ecs = min(1.0, ecs * 1.15)  # 15% boost for 3+ JD-specific skills
+    elif jd_match_count >= 2:
+        ecs = min(1.0, ecs * 1.08)  # 8% boost for 2+ JD-specific skills
+
     # Count consistent axes (score > 0.6)
     axes_consistent = sum(1 for s in [score_a, score_b, score_c, score_d] if s > 0.6)
     total_axes = 4

@@ -32,6 +32,7 @@ def generate_reasoning(
     response = features.get("response_rate", 0)
     interview = features.get("interview_completion", 0)
     ai_count = features.get("ai_skill_count", 0)
+    jd_sim = features.get("jd_similarity", 0)
 
     signals = []
     if response > 0.7:
@@ -40,6 +41,8 @@ def generate_reasoning(
         signals.append(f"{interview:.0%} interview")
     if ai_count > 3:
         signals.append(f"{int(ai_count)} AI skills")
+    if jd_sim > 0.3:
+        signals.append(f"JD match {jd_sim:.0%}")
     if features.get("has_deployment_evidence", 0) > 0:
         signals.append("production exp")
 

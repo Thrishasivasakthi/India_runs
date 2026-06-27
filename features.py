@@ -286,6 +286,89 @@ def extract_candidate_features(candidate: Dict[str, Any]) -> Dict[str, float]:
         "production", "deploy", "ship", "scale", "serving"
     ]))
 
+    # === JD-specific matching ===
+    jd_keywords = {
+        "retrieval": ["retrieval", "search", "bm25", "vector search"],
+        "ranking": ["ranking", "reranking", "rerank", "scoring"],
+        "embeddings": ["embedding", "vector", "pinecone", "weaviate", "qdrant", "faiss"],
+        "evaluation": ["evaluation", "benchmark", "ndcg", "mrr", "map", "metrics"],
+        "llm": ["llm", "large language model", "gpt", "transformer", "fine-tun"],
+        "production_ml": ["production", "deploy", "ship", "scale", "serving", "mlops"],
+    }
+    raw_skills = candidate.get("skills", [])
+    career_history_raw = candidate.get("career_history", [])
+    all_text = summary.lower()
+    for skill in raw_skills:
+        if isinstance(skill, dict):
+            all_text += " " + skill.get("skill", "").lower()
+        else:
+            all_text += " " + str(skill).lower()
+    for ch in career_history_raw:
+        if isinstance(ch, dict):
+            all_text += " " + ch.get("description", "").lower()
+            all_text += " " + " ".join(ch.get("responsibilities", [])).lower()
+    projects_raw = candidate.get("projects", [])
+    for proj in projects_raw:
+        if isinstance(proj, dict):
+            all_text += " " + proj.get("description", "").lower()
+            all_text += " " + " ".join(proj.get("features_used", [])).lower()
+    publications_raw = candidate.get("publications", [])
+    for pub in publications_raw:
+        if isinstance(pub, dict):
+            all_text += " " + pub.get("title", "").lower()
+            all_text += " " + pub.get("abstract", "").lower()
+
+    for jd_cat, jd_kws in jd_keywords.items():
+        features[f"jd_match_{jd_cat}"] = float(any(kw in all_text for kw in jd_kws))
+
+    # === Career depth scoring (for JD's 5-9 year preference) ===
+    total_yoe = features.get("years_of_experience", 0)
+    total_dur_months = features.get("total_duration_months", 0)
+    non_intern_yoe = max(0, total_yoe - 1.0)  # Assume at least 1 year internship overlap
+    features["non_intern_yoe"] = non_intern_yoe
+    features["in_jd_experience_band"] = float(5 <= non_intern_yoe <= 9)
+    features["above_jd_experience"] = float(non_intern_yoe > 9)
+    features["below_jd_experience"] = float(non_intern_yoe < 5)
+
+    # === Seniority text signals ===
+    seniority_terms = {
+        "founder": ["founder", "co-founder", "founding"],
+        "lead": ["lead", "head", "principal", "staff"],
+        "senior": ["senior", "sr.", "sr "],
+        "mid": ["mid-level", "mid level"],
+        "junior": ["junior", "jr.", "jr ", "intern", "trainee"],
+    }
+    for level, terms in seniority_terms.items():
+        features[f"seniority_{level}"] = float(any(t in all_text for t in terms))
+
+    # === Text richness (for career-history mining) ===
+    desc_lengths = [len(ch.get("description", "")) for ch in career_history_raw if isinstance(ch, dict)]
+    features["avg_career_desc_length"] = sum(desc_lengths) / max(len(desc_lengths), 1)
+    features["total_career_text"] = sum(desc_lengths)
+    resp_counts = [len(ch.get("responsibilities", [])) for ch in career_history_raw if isinstance(ch, dict)]
+    features["avg_resp_per_role"] = sum(resp_counts) / max(len(resp_counts), 1)
+
+    # === Publication count ===
+    features["publication_count"] = len(publications_raw)
+    features["has_publications"] = float(len(publications_raw) > 0)
+
+    # === Skill breadth vs depth ===
+    num_skills = len(skills)
+    if num_skills > 0:
+        proficiencies = []
+        for s in skills:
+            if isinstance(s, dict):
+                proficiencies.append(s.get("proficiency", 0))
+            else:
+                proficiencies.append(0)
+        features["max_skill_proficiency"] = max(proficiencies)
+        features["min_skill_proficiency"] = min(proficiencies)
+        features["skill_proficiency_range"] = max(proficiencies) - min(proficiencies)
+    else:
+        features["max_skill_proficiency"] = 0
+        features["min_skill_proficiency"] = 0
+        features["skill_proficiency_range"] = 0
+
     return features
 
 
@@ -298,3 +381,80 @@ def extract_all_features(candidates: List[Dict[str, Any]]) -> pd.DataFrame:
         feature_rows.append(features)
 
     return pd.DataFrame(feature_rows).set_index("candidate_id")
+
+
+def compute_semantic_jd_similarity(candidates: List[Dict[str, Any]], jd_text: str) -> Dict[str, float]:
+    """Compute cosine similarity between candidate profiles and JD using sentence-transformers.
+    Falls back to TF-IDF if sentence-transformers is not available.
+    Returns dict of candidate_id -> similarity score.
+    """
+    scores = {}
+
+    try:
+        from sentence_transformers import SentenceTransformer
+        import numpy as np
+        from sklearn.feature_extraction.text import TfidfVectorizer
+        from sklearn.metrics.pairwise import cosine_similarity
+
+        model = SentenceTransformer('all-MiniLM-L6-v2')
+
+        # Build candidate texts
+        candidate_texts = []
+        candidate_ids = []
+        for c in candidates:
+            cid = c.get("candidate_id", "")
+            profile = c.get("profile", {})
+            summary = profile.get("summary", "")
+            skills = " ".join([s.get("skill", "") for s in c.get("skills", [])])
+            career = " ".join([ch.get("description", "") for ch in c.get("career_history", [])])
+            text = f"{summary} {skills} {career}".strip()
+            candidate_texts.append(text if text else "empty")
+            candidate_ids.append(cid)
+
+        # Encode
+        jd_emb = model.encode([jd_text])
+        cand_embs = model.encode(candidate_texts, batch_size=256, show_progress_bar=False)
+
+        # Cosine similarity
+        from sklearn.metrics.pairwise import cosine_similarity
+        sims = cosine_similarity(jd_emb, cand_embs)[0]
+
+        for cid, sim in zip(candidate_ids, sims):
+            scores[cid] = float(sim)
+
+        print(f"[SEMANTIC] Computed JD similarity for {len(scores)} candidates using sentence-transformers")
+
+    except ImportError:
+        print("[SEMANTIC] sentence-transformers not available, using TF-IDF fallback")
+        from sklearn.feature_extraction.text import TfidfVectorizer
+        from sklearn.metrics.pairwise import cosine_similarity
+        import numpy as np
+
+        candidate_texts = []
+        candidate_ids = []
+        for c in candidates:
+            cid = c.get("candidate_id", "")
+            profile = c.get("profile", {})
+            summary = profile.get("summary", "")
+            skills = " ".join([s.get("skill", "") for s in c.get("skills", [])])
+            career = " ".join([ch.get("description", "") for ch in c.get("career_history", [])])
+            text = f"{summary} {skills} {career}".strip()
+            candidate_texts.append(text if text else "empty")
+            candidate_ids.append(cid)
+
+        all_texts = [jd_text] + candidate_texts
+        tfidf = TfidfVectorizer(max_features=10000, stop_words='english')
+        tfidf_matrix = tfidf.fit_transform(all_texts)
+        jd_vec = tfidf_matrix[0:1]
+        cand_vecs = tfidf_matrix[1:]
+        sims = cosine_similarity(jd_vec, cand_vecs)[0]
+
+        for cid, sim in zip(candidate_ids, sims):
+            scores[cid] = float(sim)
+
+        print(f"[SEMANTIC] Computed JD similarity for {len(scores)} candidates using TF-IDF")
+
+    except Exception as e:
+        print(f"[SEMANTIC] Error: {e}, returning empty scores")
+
+    return scores

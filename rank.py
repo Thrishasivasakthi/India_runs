@@ -21,7 +21,7 @@ import numpy as np
 import pandas as pd
 warnings.filterwarnings("ignore")
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from features import load_candidates, extract_candidate_features
+from features import load_candidates, extract_candidate_features, compute_semantic_jd_similarity
 from evidence import compute_ecs
 from reasoning import generate_reasoning
 from sklearn.preprocessing import StandardScaler
@@ -257,6 +257,7 @@ def main():
         f["axis_d_score"] = e["axis_d_score"]
         fd[cid] = f
         if (i+1) % 25000 == 0: print(f"  {i+1}...")
+
     del cands; gc.collect()
     df = pd.DataFrame(fd).T
     for col in df.columns:
@@ -265,6 +266,41 @@ def main():
     print(f"  {df.shape[1]} features, ECS: mean={df['ecs'].astype(float).mean():.3f}, "
           f"range=[{df['ecs'].astype(float).min():.3f}, {df['ecs'].astype(float).max():.3f}]"
           f" ({time.time()-T0:.0f}s)")
+
+    # 2b. Semantic JD similarity (only for top 500 candidates by heuristic score)
+    print("\n[2b/7] Semantic JD similarity...")
+    jd_text = ""
+    for root_dir, dirs, files in os.walk(data_dir):
+        for f_name in files:
+            if "job_description" in f_name.lower() or "jd" in f_name.lower():
+                jd_path = os.path.join(root_dir, f_name)
+                try:
+                    if f_name.endswith(".docx"):
+                        from docx import Document
+                        doc = Document(jd_path)
+                        jd_text = " ".join([p.text for p in doc.paragraphs])
+                    elif f_name.endswith(".txt"):
+                        with open(jd_path, "r", encoding="utf-8", errors="ignore") as fh:
+                            jd_text = fh.read()
+                    print(f"  Loaded JD from: {jd_path} ({len(jd_text)} chars)")
+                except Exception as e:
+                    print(f"  Could not load JD: {e}")
+
+    if jd_text:
+        pre_scores = {}
+        for cid, feat_dict in fd.items():
+            pre_scores[cid] = (feat_dict.get("ecs", 0) * 0.4 + feat_dict.get("ai_skill_count", 0) / 10 * 0.3 +
+                               feat_dict.get("avg_proficiency", 0) / 5 * 0.3)
+        top500_cids = sorted(pre_scores, key=pre_scores.get, reverse=True)[:500]
+        top500_cands = [cm[cid] for cid in top500_cids if cid in cm]
+        jd_scores = compute_semantic_jd_similarity(top500_cands, jd_text)
+        df["jd_similarity"] = df.index.map(lambda x: jd_scores.get(x, 0.0))
+        print(f"  JD similarity: mean={df['jd_similarity'].mean():.4f}, "
+              f"range=[{df['jd_similarity'].min():.4f}, {df['jd_similarity'].max():.4f}]")
+    else:
+        df["jd_similarity"] = 0.0
+        print("  No JD found, skipping semantic similarity")
+    print(f"  ({time.time()-T0:.0f}s)")
 
     # 3. Heuristic score
     print("\n[3/7] Heuristic scoring...")
@@ -292,7 +328,7 @@ def main():
     engage = compute_engagement(df)
     exp = compute_experience(df)
 
-    heuristic = (df["ecs"].astype(float)*0.30 + skill_d*0.30 + engage*0.15 + exp*0.15 + (1-gate)*0.10) * eng_b
+    heuristic = (df["ecs"].astype(float)*0.25 + skill_d*0.25 + engage*0.15 + exp*0.15 + (1-gate)*0.10 + df["jd_similarity"].astype(float)*0.10) * eng_b
     print(f"  Heuristic range: [{heuristic.min():.4f}, {heuristic.max():.4f}]")
 
     # 4. LightGBM LambdaMART (train on 10K subsample)
@@ -305,13 +341,15 @@ def main():
                       "ai_skill_count","backend_skill_count","data_skill_count",
                       "skill_count","avg_proficiency","has_deployment_evidence",
                       "has_production_metrics","is_engineer","consulting_only",
-                      "has_github","github_activity","claim_assessment_consistency"]
+                      "has_github","github_activity","claim_assessment_consistency",
+                      "jd_similarity"]
             X_all = df[X_cols].astype(float).fillna(0)
             y_all = (df["is_engineer"]*2 + (df["ai_skill_count"]>0).astype(float)*1.5 +
                      df["has_deployment_evidence"] + df["has_production_metrics"] +
                      (df["response_rate"]>0.7).astype(float)*0.5 +
                      (df["interview_completion"]>0.7).astype(float)*0.5 -
-                     is_nt*2.5 - df["consulting_only"]*1.5)
+                     is_nt*2.5 - df["consulting_only"]*1.5 +
+                     df["jd_similarity"].astype(float)*1.5)
             y_all = ((y_all-y_all.min())/(y_all.max()-y_all.min()+1e-6)*4).round().astype(int)
 
             np.random.seed(42)
@@ -370,12 +408,46 @@ def main():
         counterfactuals[top300[i]] = generate_counterfactual(df, top300, cl, i)
     print(f"  {nc} clusters, {len(counterfactuals)} counterfactuals ({time.time()-T0:.0f}s)")
 
-    # 6. Rank + tie-break
-    print("\n[6/7] Ranking + reasoning...")
-    df["candidate_id"] = df.index
-    df["score_r"] = df["score"].round(4)
-    df = df.sort_values(["score_r","candidate_id"], ascending=[False,True])
+    # 5b. MMR diversity: ensure top 100 has diverse archetypes
+    print("\n[5b/7] MMR diversity (top 100)...")
+    mmr_cols = ["ecs","jd_similarity","years_of_experience","ai_skill_count",
+                "response_rate","skill_count","is_engineer","max_tenure_months"]
+    mmr_data = df.loc[list(top300), mmr_cols].replace([np.inf,-np.inf],0).fillna(0).values.astype(float)
+    mmr_scaler = StandardScaler()
+    mmr_scaled = mmr_scaler.fit_transform(mmr_data)
+
+    selected = [0]
+    remaining = list(range(1, len(top300)))
+    lambda_div = 0.15
+
+    for _ in range(min(99, len(remaining))):
+        best_idx = -1
+        best_mmr = -1e9
+        for idx in remaining:
+            relevance = float(df.loc[top300[idx], "score"])
+            max_sim = max(float(np.dot(mmr_scaled[idx], mmr_scaled[s]))
+                         / (np.linalg.norm(mmr_scaled[idx]) * np.linalg.norm(mmr_scaled[s]) + 1e-6)
+                         for s in selected)
+            mmr_score = (1 - lambda_div) * relevance - lambda_div * max_sim
+            if mmr_score > best_mmr:
+                best_mmr = mmr_score
+                best_idx = idx
+        if best_idx >= 0:
+            selected.append(best_idx)
+            remaining.remove(best_idx)
+
+    # Apply MMR reordering to top 100
+    mmr_order = [top300[i] for i in selected]
+    # Keep remaining from original sort
+    remaining_top = [c for c in df.head(300).index if c not in mmr_order]
+    final_order = mmr_order + remaining_top[:max(0, 100 - len(mmr_order))]
+    df_mmr = df.loc[final_order].copy()
+    df_mmr["candidate_id"] = df_mmr.index
+    df_mmr["score_r"] = df_mmr["score"].round(4)
+    df_mmr = df_mmr.sort_values(["score_r","candidate_id"], ascending=[False,True])
+    df = df_mmr
     top100 = df.head(100)
+    print(f"  MMR diversity applied: {len(mmr_order)} MMR-selected ({time.time()-T0:.0f}s)")
 
     rows = []
     for rank, (cid, row) in enumerate(top100.iterrows(), 1):
