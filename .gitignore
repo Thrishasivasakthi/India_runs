@@ -1,12 +1,8 @@
 # Data files
-*.zip
 [PUB]*/
+*.zip
 candidates.jsonl
-
-# Debug/test files
-check_*.py
-test_*.py
-debug_*.py
+*.jsonl
 
 # Python
 __pycache__/

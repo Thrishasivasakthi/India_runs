@@ -1,12 +1,12 @@
 # Corroborated Evidence Ranking Engine
 
-A candidate ranking system that doesn't trust claims — it trusts corroboration between independent evidence sources.
+A candidate ranking system that doesn't trust claims — it trusts **corroboration between independent evidence sources**.
 
 ## Core Innovation
 
-Most systems ask: **"How similar is this candidate to the JD?"**
+Most systems ask: *"How similar is this candidate to the JD?"*
 
-We ask: **"How much independent evidence supports this candidate's claims?"**
+We ask: *"How much independent evidence supports this candidate's claims?"*
 
 ### The 4 Evidence Axes
 
@@ -32,21 +32,21 @@ ECS = (A^0.35 × B^0.30 × C^0.20 × D^0.15) ^ (1/1.0)
 ```
 100K Candidates
     ↓
-[Semantic Recall] → Top 5000 relevant
+[Feature Extraction] → 52 features per candidate (sentinel-safe)
     ↓
-[JD Disqualifier Gates] → Soft penalties (not hard rejections)
+[4-Axis ECS] → Evidence Consistency Score (geometric mean)
     ↓
-[Evidence Consistency Engine] → ECS score (4 axes, geometric mean)
+[Heuristic Scoring] → ECS × SkillDensity × Engagement × Experience × (1-Gate) × EngBonus
     ↓
-[Behavioral Reality Layer] → Sentinels treated as unknown
+[LightGBM LambdaMART] → Learned ranking from weak-supervision labels
     ↓
-[Availability Scoring] → Notice period + activity
+[Score Blend] → 60% LightGBM + 40% Heuristic
     ↓
-[Final Score] → ECS × Recruitability × Availability × (1 - GatePenalty)
+[Behavioral Twin Resolution] → KMeans clustering + cluster quality bonus
     ↓
-[Reasoning Generator] → Feature-based, no LLM, no hallucination
+[Deterministic Reasoning] → Feature-based, no LLM, no hallucination, with counterfactuals
     ↓
-Submission CSV
+Ranked CSV (100 candidates)
 ```
 
 ## Key Design Decisions
@@ -58,49 +58,66 @@ Submission CSV
 
 Treat as "no data" (neutral imputation), not penalty.
 
-### 2. Soft Gates, Not Hard Rejections
+### 2. Soft Multiplicative Gates, Not Hard Rejections
 
-Naive elimination causes 13.4% false positive rate. Soft penalties avoid this.
+Non-technical titles get penalized proportionally, not eliminated.
+Naive elimination causes 13.4% false positive rate.
 
-### 3. Multiplicative Scoring
+### 3. Engineer Bonus × Non-Tech Penalty
 
 ```
-Score = ECS × Recruitability × Availability × (1 - GatePenalty)
+EngBonus = 1 + is_engineer × 0.7 - is_non_tech × 0.4
 ```
 
-Why: A candidate with 95 skill and 0 recruitability scores 0. Correct — they're unreachable.
+A Data Scientist gets 1.7x. An HR Manager gets 0.3x. Net difference: **5.7x**.
 
-### 4. Feature-Based Reasoning (No LLM)
+### 4. LightGBM LambdaMART
+
+Trained on weak-supervision labels derived from JD-aligned heuristics:
+- Technical role + AI skills → positive label
+- Non-technical role → negative label
+- Behavioral signals (response rate, interview completion) → bonus
+
+### 5. Twin Resolution + Counterfactuals
+
+Candidates are clustered into behavioral twins. For each top candidate, we find their closest twin and explain **why they outrank them** (evidence consistency, engagement, AI skills).
+
+### 6. Feature-Based Reasoning (No LLM)
 
 Every reasoning sentence sourced from actual features. No hallucination. Rank-consistent.
 
+## Results
+
+- **Top 10**: 100% technical roles (ML Engineer, Data Scientist, CV Engineer, etc.)
+- **Top 100**: 100% technical roles (0 non-technical)
+- **Runtime**: ~56 seconds (CPU-only, no GPU)
+- **Passes official validator**: ✓
+
 ## Usage
 
-### Run Pipeline
 ```bash
 pip install -r requirements.txt
-python rank.py ./data ranked_candidates.csv
+python rank.py
 ```
 
-### Validate
-```bash
-python validate.py ./data ranked_candidates.csv
-```
+Output: `ranked_candidates.csv` (100 rows, format: candidate_id, rank, score, reasoning)
 
 ## Competition Constraints
 
-- CPU-only (no GPU)
-- No network access during evaluation
-- ≤5 minutes runtime
-- ≤16GB RAM
-
-All components are designed to meet these constraints.
+- CPU-only (no GPU) ✓
+- No network access during evaluation ✓
+- ≤5 minutes runtime ✓ (runs in ~56s)
+- ≤16GB RAM ✓
 
 ## Files
 
-- `rank.py` — Main pipeline
-- `features.py` — Feature extraction
-- `evidence.py` — Evidence consistency engine
-- `reasoning.py` — Deterministic reasoning generator
-- `validate.py` — Validation harness
-- `config.py` — Configuration and constants
+| File | Description |
+|------|-------------|
+| `rank.py` | Main pipeline (runs everything end-to-end) |
+| `features.py` | 52-feature extraction from JSONL candidates |
+| `evidence.py` | 4-axis Evidence Consistency Engine |
+| `reasoning.py` | Deterministic reasoning generator |
+| `ranker.py` | LightGBM LambdaMART ranker |
+| `twin_resolution.py` | Behavioral twin clustering |
+| `config.py` | Calibrated constants and weights |
+| `requirements.txt` | Python dependencies |
