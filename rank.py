@@ -269,6 +269,20 @@ def main():
     # 3. Heuristic score
     print("\n[3/7] Heuristic scoring...")
     gate = compute_gate(df)
+
+    # Honeypot detection: impossible profiles
+    honeypot = pd.Series(0.0, index=df.index)
+    # YoE claimed but no career history
+    honeypot += ((df["years_of_experience"].astype(float) > 3) & (df["total_duration_months"].astype(float) < 12)).astype(float) * 0.5
+    # Expert claims with < 2 years
+    honeypot += ((df["avg_proficiency"].astype(float) > 3) & (df["years_of_experience"].astype(float) < 2)).astype(float) * 0.4
+    # 50+ skills listed (keyword stuffing)
+    honeypot += (df["skill_count"].astype(float) > 50).astype(float) * 0.3
+    # Advanced/expert but zero assessments and zero GitHub
+    honeypot += ((df["claim_assessment_consistency"].astype(float) > 0.7) &
+                 (df["assessment_count"].astype(float) == 0) &
+                 (df["has_github"].astype(float) == 0)).astype(float) * 0.2
+    gate = (gate + honeypot).clip(upper=0.8)
     is_eng = df["is_engineer"].astype(float)
     is_nt = (df["is_hr"]+df["is_accountant"]+df["is_sales"]+df["is_content_writer"]+
              df["is_designer"]+df["is_civil"]+df["is_mechanical"]).astype(float)
@@ -306,7 +320,8 @@ def main():
                              group=[min(10000, len(idx))], feature_name=list(X_all.columns))
             m = lgb.train({"objective":"lambdarank","metric":"ndcg","eval_at":[10,50],
                            "num_leaves":31,"learning_rate":0.05,"feature_fraction":0.8,
-                           "verbose":-1,"num_threads":4,"label_gain":[0,1,2,3,4]},
+                           "verbose":-1,"num_threads":4,"label_gain":[0,1,2,3,4],
+                           "seed":42},
                           ds, num_boost_round=100, callbacks=[lgb.log_evaluation(0)])
             p = m.predict(X_all.values)
             p = (p-p.min())/(p.max()-p.min()+1e-6)
