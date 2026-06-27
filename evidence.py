@@ -29,7 +29,7 @@ def axis_claim_assessment(features: Dict[str, float]) -> Tuple[float, str]:
     avg_gap = features.get("avg_assessment_gap", 0)
 
     if assessment_count == 0:
-        return 0.5, "No assessment data available"
+        return 0.35, "No assessment data — cannot verify claims"
 
     # consistency is already 0-1 from features.py
     if consistency > 0.7:
@@ -127,8 +127,8 @@ def axis_claim_corroboration(features: Dict[str, float]) -> Tuple[float, str]:
         consistency = sum(score for _, score in signals)
         reason = f"Corroborated by: {', '.join(name for name, _ in signals)}"
     else:
-        consistency = 0.3
-        reason = "Limited external corroboration"
+        consistency = 0.25
+        reason = "Limited external corroboration — no endorsements, GitHub, or profile data"
 
     return min(consistency, 1.0), reason
 

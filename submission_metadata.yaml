@@ -1,0 +1,41 @@
+name: "Corroborated Evidence Ranking Engine"
+team: "Solo"
+github_repo: ""
+methodology: |
+  A candidate ranking system built on the principle that claims should be verified
+  by independent evidence, not trusted at face value.
+
+  Core innovation: 4-axis Evidence Consistency Engine (ECS) that computes a
+  geometric mean across independent evidence sources:
+    - Claim vs Assessment consistency (catches inflated skill claims)
+    - Claim vs Career History consistency (verifies experience authenticity)
+    - Claim vs Corroboration consistency (GitHub, endorsements, profile)
+    - Seniority vs Trajectory consistency (detects title inflation)
+
+  Key design decisions:
+    1. Sentinel values (-1) treated as "unknown" not "bad" (avoids penalizing 60%+ of candidates)
+    2. Soft multiplicative gates (non-technical roles penalized, not eliminated)
+    3. Geometric mean aggregation (one contradiction kills the score)
+    4. LightGBM LambdaMART trained on weak-supervision labels from JD heuristics
+    5. Behavioral twin resolution (KMeans clustering for hidden gem detection)
+    6. Deterministic feature-based reasoning (no LLM, no hallucination)
+
+compute:
+  platform: "Local Windows"
+  cpu_cores: 8
+  ram_gb: 16
+  python_version: "3.11"
+  os: "Windows 11"
+  uses_gpu_for_inference: false
+  has_network_during_ranking: false
+  pre_computation_required: false
+
+ai_tools_used:
+  - "None (all code original)"
+
+declarations:
+  read_submission_spec: true
+  code_is_original_work: true
+  no_collusion: true
+  honeypot_check_done: true
+  reproduction_tested: true

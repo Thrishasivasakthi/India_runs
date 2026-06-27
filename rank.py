@@ -1,3 +1,21 @@
+"""
+Corroborated Evidence Ranking Engine — Final Pipeline
+
+All components:
+  1. Feature extraction (52 features, sentinel-safe)
+  2. 4-axis Evidence Consistency Engine (geometric mean)
+  3. JD disqualifier gates (soft multiplicative penalties)
+  4. LightGBM LambdaMART (weak-supervision labels)
+  5. Behavioral Twin Resolution (KMeans + counterfactuals)
+  6. Deterministic reasoning (no LLM, no hallucination)
+  7. Local validation (NDCG estimate)
+  8. Tie-breaking by candidate_id ascending
+
+Usage:
+  python rank.py                           # auto-detect data dir
+  python rank.py <data_dir> <output_csv>   # explicit paths
+"""
+
 import os, sys, json, time, warnings, gc
 import numpy as np
 import pandas as pd
@@ -14,32 +32,219 @@ try:
 except ImportError:
     HAS_LGBM = False
 
-DATA_DIR = r"C:\Users\thris\Downloads\Resume-hexa-format\hackathon\[PUB] India_runs_data_and_ai_challenge\[PUB] India_runs_data_and_ai_challenge\India_runs_data_and_ai_challenge"
-OUTPUT = r"C:\Users\thris\Downloads\Resume-hexa-format\hackathon\ranked_candidates.csv"
-
 TECH_KW = ["engineer","developer","scientist","architect","sre","machine learning",
            "data scien","ai ","nlp","backend","frontend","full stack","mobile",
            "python","java",".net","cloud","devops","search engineer","applied scien"]
 NON_TECH_KW = ["hr","human resource","accountant","mechanical","civil","sales",
                "business development","content","writer","copywriter","designer","graphic"]
+N_CLUSTERS = 20
 
-def find_jsonl(d):
-    for r,_,fs in os.walk(d):
-        for f in fs:
-            if f=="candidates.jsonl": return os.path.join(r,f)
+
+def find_data_dir():
+    """Auto-detect data directory containing candidates.jsonl."""
+    # Check command-line first
+    if len(sys.argv) >= 2:
+        return sys.argv[1]
+    # Walk from script directory
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    for root, dirs, files in os.walk(script_dir):
+        if "candidates.jsonl" in files:
+            return root
+    # Walk from current directory
+    for root, dirs, files in os.walk(os.getcwd()):
+        if "candidates.jsonl" in files:
+            return root
+    print("ERROR: candidates.jsonl not found. Pass data_dir as argument.")
+    sys.exit(1)
+
+
+def find_jsonl(data_dir):
+    """Find candidates.jsonl in data_dir or subdirectories."""
+    if os.path.isfile(data_dir) and data_dir.endswith(".jsonl"):
+        return data_dir
+    for root, dirs, files in os.walk(data_dir):
+        for f in files:
+            if f == "candidates.jsonl":
+                return os.path.join(root, f)
     return ""
+
+
+def get_output_path():
+    """Get output CSV path from args or default."""
+    if len(sys.argv) >= 3:
+        return sys.argv[2]
+    return os.path.join(os.path.dirname(os.path.abspath(__file__)), "ranked_candidates.csv")
+
+
+# ─── Scoring Components ─────────────────────────────────────────────────
+
+def compute_gate(df):
+    gate = pd.Series(0.0, index=df.index)
+    for c, w in [("is_hr",.45),("is_accountant",.45),("is_sales",.35),
+                 ("is_content_writer",.35),("is_designer",.35),
+                 ("is_civil",.35),("is_mechanical",.35),("consulting_only",.25)]:
+        gate += df[c].astype(float) * w
+    return gate.clip(upper=0.6)
+
+
+def compute_skill_density(df):
+    return (df["ai_skill_count"].astype(float)*0.35 + df["skill_count"].astype(float)/30*0.25 +
+            df["github_activity"].astype(float)/100*0.15 + df["has_deployment_evidence"].astype(float)*0.15 +
+            df["has_github"].astype(float)*0.10)
+
+
+def compute_engagement(df):
+    return (df["response_rate"].astype(float)*0.30 + df["interview_completion"].astype(float)*0.25 +
+            df["offer_acceptance"].astype(float)*0.20 + df["profile_views"].astype(float)/500*0.15 +
+            df["recruiter_saves"].astype(float)/50*0.10)
+
+
+def compute_experience(df):
+    return (df["years_of_experience"].astype(float)/10*0.30 + df["max_tenure_months"].astype(float)/60*0.25 +
+            df["company_count"].astype(float)/5*0.20 + df["has_deployment_evidence"].astype(float)*0.25)
+
+
+# ─── Counterfactual Generator ───────────────────────────────────────────
+
+def generate_counterfactual(df, top_idx, clusters, i):
+    """Generate specific counterfactual for candidate at position i in top_idx."""
+    cid = top_idx[i]
+    c = clusters[i]
+    same = [j for j in range(len(top_idx)) if clusters[j] == c and j != i]
+    if not same:
+        return "unique profile — no comparable candidate in cluster"
+
+    # Pre-compute feature arrays for speed
+    ecs_arr = df.loc[top_idx, "ecs"].values.astype(float)
+    resp_arr = df.loc[top_idx, "response_rate"].values.astype(float)
+    ai_arr = df.loc[top_idx, "ai_skill_count"].values.astype(float)
+    yoe_arr = df.loc[top_idx, "years_of_experience"].values.astype(float)
+    deploy_arr = df.loc[top_idx, "has_deployment_evidence"].values.astype(float)
+    profile_arr = df.loc[top_idx, "profile_completeness"].values.astype(float)
+    endorse_arr = df.loc[top_idx, "total_endorsements"].values.astype(float)
+    tenure_arr = df.loc[top_idx, "max_tenure_months"].values.astype(float)
+    skill_arr = df.loc[top_idx, "skill_count"].values.astype(float)
+    gh_arr = df.loc[top_idx, "github_activity"].values.astype(float)
+
+    # Find closest twin by feature distance
+    tc = ["ecs","years_of_experience","ai_skill_count","github_activity",
+          "is_engineer","response_rate","skill_count","has_deployment_evidence","max_tenure_months"]
+    td = df.loc[top_idx, tc].replace([np.inf,-np.inf],0).fillna(0).values.astype(float)
+    cv = td[i]
+    best_d, best_j = float("inf"), same[0]
+    for j in same[:30]:
+        d = np.linalg.norm(cv - td[j])
+        if d < best_d:
+            best_d, best_j = d, j
+
+    twin = top_idx[best_j]
+    j = best_j
+
+    # Compare every dimension to find the MOST differentiating one
+    comparisons = []
+    de = ecs_arr[i] - ecs_arr[j]
+    dr = resp_arr[i] - resp_arr[j]
+    da = ai_arr[i] - ai_arr[j]
+    dy = yoe_arr[i] - yoe_arr[j]
+    dd = deploy_arr[i] - deploy_arr[j]
+    dp = profile_arr[i] - profile_arr[j]
+    den = endorse_arr[i] - endorse_arr[j]
+    dt = tenure_arr[i] - tenure_arr[j]
+    ds = skill_arr[i] - skill_arr[j]
+    dg = gh_arr[i] - gh_arr[j]
+
+    if abs(de) > 0.1:
+        comparisons.append(f"evidence consistency ({ecs_arr[i]:.2f} vs {ecs_arr[j]:.2f})")
+    if abs(da) > 2:
+        comparisons.append(f"AI skill depth ({int(ai_arr[i])} vs {int(ai_arr[j])} skills)")
+    if abs(dr) > 0.15:
+        comparisons.append(f"recruiter engagement ({resp_arr[i]:.0%} vs {resp_arr[j]:.0%} response)")
+    if abs(dy) > 2:
+        comparisons.append(f"experience ({yoe_arr[i]:.1f} vs {yoe_arr[j]:.1f} yrs)")
+    if abs(dt) > 12:
+        comparisons.append(f"career stability ({tenure_arr[i]:.0f} vs {tenure_arr[j]:.0f} mo max tenure)")
+    if abs(den) > 10:
+        comparisons.append(f"peer recognition ({int(endorse_arr[i])} vs {int(endorse_arr[j])} endorsements)")
+    if abs(dp) > 15:
+        comparisons.append(f"profile completeness ({profile_arr[i]:.0f} vs {profile_arr[j]:.0f})")
+    if abs(dg) > 20:
+        comparisons.append(f"GitHub activity ({gh_arr[i]:.0f} vs {gh_arr[j]:.0f})")
+
+    if comparisons:
+        return f"outranks closest twin by {comparisons[0]}" + (f" + {comparisons[1]}" if len(comparisons) > 1 else "")
+    else:
+        return f"marginally stronger across all signals (distance: {best_d:.2f})"
+
+
+# ─── Validation ─────────────────────────────────────────────────────────
+
+def local_validation(df, cand_map):
+    """Estimate ranking quality using heuristic ground truth."""
+    # Build heuristic ground truth: score based on title relevance + AI skills + deployment
+    gt = pd.Series(0.0, index=df.index)
+    gt += df["is_engineer"].astype(float) * 3.0
+    gt += (df["ai_skill_count"].astype(float) > 0).astype(float) * 2.0
+    gt += (df["ai_skill_count"].astype(float) > 3).astype(float) * 1.0
+    gt += df["has_deployment_evidence"].astype(float) * 1.5
+    gt += df["has_production_metrics"].astype(float) * 1.0
+    gt += df["response_rate"].astype(float) * 1.0
+    gt -= (df["is_hr"] + df["is_accountant"] + df["is_sales"] +
+           df["is_content_writer"] + df["is_designer"] +
+           df["is_civil"] + df["is_mechanical"]).astype(float) * 3.0
+
+    gt_ranked = gt.sort_values(ascending=False)
+    our_ranked = df["score"].sort_values(ascending=False)
+
+    # NDCG@10 estimate
+    def ndcg_at_k(pred, ideal, k):
+        def dcg(scores):
+            return sum(s / np.log2(i + 2) for i, s in enumerate(scores[:k]))
+        ideal_dcg = dcg(ideal.values[:k])
+        pred_scores = [pred.get(idx, 0) for idx in ideal.index[:k]]
+        pred_dcg = sum(s / np.log2(i + 2) for i, s in enumerate(pred_scores[:k]))
+        return pred_dcg / ideal_dcg if ideal_dcg > 0 else 0
+
+    our_dict = our_ranked.to_dict()
+    n10 = ndcg_at_k(our_dict, gt_ranked, 10)
+    n50 = ndcg_at_k(our_dict, gt_ranked, 50)
+
+    # P@10: fraction of top 10 that are technical
+    top10_ids = list(our_ranked.index[:10])
+    p10 = sum(1 for cid in top10_ids
+              if any(k in cand_map.get(cid,{}).get("profile",{}).get("current_title","").lower()
+                     for k in TECH_KW)) / 10
+
+    # Honeypot rate
+    honeypots = sum(1 for cid in list(our_ranked.index[:100])
+                    if any(k in cand_map.get(cid,{}).get("profile",{}).get("current_title","").lower()
+                           for k in NON_TECH_KW)) / 100
+
+    return {"NDCG@10": n10, "NDCG@50": n50, "P@10": p10, "honeypot_rate": honeypots}
+
+
+# ─── Main Pipeline ───────────────────────────────────────────────────────
 
 def main():
     T0 = time.time()
 
+    data_dir = find_data_dir()
+    output = get_output_path()
+    jsonl = find_jsonl(data_dir)
+    if not jsonl:
+        print("ERROR: candidates.jsonl not found"); return
+
     # 1. Load
-    cands = load_candidates(find_jsonl(DATA_DIR))
+    print("=" * 65)
+    print("CORROBORATED EVIDENCE RANKING ENGINE")
+    print("=" * 65)
+    cands = load_candidates(jsonl)
     cm = {c["candidate_id"]: c for c in cands}
-    print(f"[1/5] Loaded {len(cands)} ({time.time()-T0:.0f}s)")
+    print(f"\n[1/7] Loaded {len(cands)} candidates ({time.time()-T0:.0f}s)")
 
     # 2. Features + ECS
+    print("\n[2/7] Feature extraction + ECS...")
     fd = {}
-    for i,c in enumerate(cands):
+    for i, c in enumerate(cands):
         cid = c["candidate_id"]
         f = extract_candidate_features(c)
         e = compute_ecs(f)
@@ -51,40 +256,33 @@ def main():
         f["axis_c_score"] = e["axis_c_score"]
         f["axis_d_score"] = e["axis_d_score"]
         fd[cid] = f
-        if (i+1)%25000==0: print(f"  {i+1}...")
+        if (i+1) % 25000 == 0: print(f"  {i+1}...")
     del cands; gc.collect()
     df = pd.DataFrame(fd).T
     for col in df.columns:
         if col != "contradictions":
             df[col] = pd.to_numeric(df[col], errors="coerce").fillna(0)
-    print(f"[2/5] Features: {df.shape} ({time.time()-T0:.0f}s)")
+    print(f"  {df.shape[1]} features, ECS: mean={df['ecs'].astype(float).mean():.3f}, "
+          f"range=[{df['ecs'].astype(float).min():.3f}, {df['ecs'].astype(float).max():.3f}]"
+          f" ({time.time()-T0:.0f}s)")
 
-    # 3. Scores
-    gate = pd.Series(0.0, index=df.index)
-    for c,w in [("is_hr",.45),("is_accountant",.45),("is_sales",.35),
-                ("is_content_writer",.35),("is_designer",.35),
-                ("is_civil",.35),("is_mechanical",.35),("consulting_only",.25)]:
-        gate += df[c].astype(float)*w
-    gate = gate.clip(upper=0.6)
-
+    # 3. Heuristic score
+    print("\n[3/7] Heuristic scoring...")
+    gate = compute_gate(df)
     is_eng = df["is_engineer"].astype(float)
     is_nt = (df["is_hr"]+df["is_accountant"]+df["is_sales"]+df["is_content_writer"]+
              df["is_designer"]+df["is_civil"]+df["is_mechanical"]).astype(float)
     eng_b = (1.0 + is_eng*0.7 - is_nt*0.4).clip(lower=0.3)
 
-    skill_d = (df["ai_skill_count"].astype(float)*0.35 + df["skill_count"].astype(float)/30*0.25 +
-               df["github_activity"].astype(float)/100*0.15 + df["has_deployment_evidence"].astype(float)*0.15 +
-               df["has_github"].astype(float)*0.10)
-    engage = (df["response_rate"].astype(float)*0.30 + df["interview_completion"].astype(float)*0.25 +
-              df["offer_acceptance"].astype(float)*0.20 + df["profile_views"].astype(float)/500*0.15 +
-              df["recruiter_saves"].astype(float)/50*0.10)
-    exp = (df["years_of_experience"].astype(float)/10*0.30 + df["max_tenure_months"].astype(float)/60*0.25 +
-           df["company_count"].astype(float)/5*0.20 + df["has_deployment_evidence"].astype(float)*0.25)
+    skill_d = compute_skill_density(df)
+    engage = compute_engagement(df)
+    exp = compute_experience(df)
 
-    df["score"] = (df["ecs"].astype(float)*0.30 + skill_d*0.30 + engage*0.15 + exp*0.15 + (1-gate)*0.10) * eng_b
-    print(f"[3/6] Scores computed ({time.time()-T0:.0f}s)")
+    heuristic = (df["ecs"].astype(float)*0.30 + skill_d*0.30 + engage*0.15 + exp*0.15 + (1-gate)*0.10) * eng_b
+    print(f"  Heuristic range: [{heuristic.min():.4f}, {heuristic.max():.4f}]")
 
-    # 4. LightGBM LambdaMART (train on 10K subsample, predict all)
+    # 4. LightGBM LambdaMART (train on 10K subsample)
+    print("\n[4/7] LightGBM LambdaMART...")
     if HAS_LGBM:
         try:
             X_cols = ["ecs","axis_a_score","axis_b_score","axis_c_score","axis_d_score",
@@ -102,13 +300,10 @@ def main():
                      is_nt*2.5 - df["consulting_only"]*1.5)
             y_all = ((y_all-y_all.min())/(y_all.max()-y_all.min()+1e-6)*4).round().astype(int)
 
-            # Train on balanced 10K subsample
             np.random.seed(42)
             idx = np.random.choice(len(df), min(10000, len(df)), replace=False)
-            X_tr = X_all.iloc[idx].values
-            y_tr = y_all.iloc[idx].values
-            groups = [min(10000, len(X_tr))]
-            ds = lgb.Dataset(X_tr, label=y_tr, group=groups, feature_name=list(X_all.columns))
+            ds = lgb.Dataset(X_all.iloc[idx].values, label=y_all.iloc[idx].values,
+                             group=[min(10000, len(idx))], feature_name=list(X_all.columns))
             m = lgb.train({"objective":"lambdarank","metric":"ndcg","eval_at":[10,50],
                            "num_leaves":31,"learning_rate":0.05,"feature_fraction":0.8,
                            "verbose":-1,"num_threads":4,"label_gain":[0,1,2,3,4]},
@@ -116,16 +311,20 @@ def main():
             p = m.predict(X_all.values)
             p = (p-p.min())/(p.max()-p.min()+1e-6)
             df["lgbm"] = p
-            df["score"] = df["lgbm"]*0.60 + df["score"]*0.40
+            df["score"] = df["lgbm"]*0.60 + heuristic*0.40
             imp = pd.DataFrame({"f":X_all.columns,"i":m.feature_importance()}).sort_values("i",ascending=False)
-            print(f"  LightGBM OK. Top: {imp.head(3)['f'].tolist()}")
+            print(f"  Top features: {imp.head(5)['f'].tolist()}")
+            print(f"  Score range: [{df['score'].min():.4f}, {df['score'].max():.4f}]")
         except Exception as ex:
-            print(f"  LightGBM failed: {ex}")
+            print(f"  Failed: {ex}")
+            df["score"] = heuristic
     else:
-        print("  LightGBM not installed")
-    print(f"[4/6] LightGBM done ({time.time()-T0:.0f}s)")
+        df["score"] = heuristic
+        print("  Skipped (not installed)")
+    print(f"  ({time.time()-T0:.0f}s)")
 
-    # 5. Twin resolution on top 300 only (fast)
+    # 5. Twin resolution on top 300
+    print("\n[5/7] Twin resolution (top 300)...")
     top300 = df.nlargest(300, "score").index
     tc = ["ecs","years_of_experience","ai_skill_count","github_activity",
           "is_engineer","response_rate","skill_count","has_deployment_evidence","max_tenure_months"]
@@ -135,53 +334,29 @@ def main():
     km = KMeans(n_clusters=nc, random_state=42, n_init=3, max_iter=50)
     cl = km.fit_predict(scaled)
 
-    # Pre-extract needed columns as numpy
-    resp_arr = df.loc[top300, "response_rate"].values.astype(float)
-    intv_arr = df.loc[top300, "interview_completion"].values.astype(float)
-    ai_arr = df.loc[top300, "ai_skill_count"].values.astype(float)
-    ecs_arr = df.loc[top300, "ecs"].values.astype(float)
-
     # Cluster quality bonus
     cq = {}
     for cid in range(nc):
-        mask = cl==cid
-        if mask.sum()==0: continue
-        cq[cid] = resp_arr[mask].mean()*0.4 + intv_arr[mask].mean()*0.3 + min(ai_arr[mask].mean()/5,1)*0.3
+        mask = cl == cid
+        if mask.sum() == 0: continue
+        r = df.loc[top300[mask], "response_rate"].values.astype(float)
+        a = df.loc[top300[mask], "interview_completion"].values.astype(float)
+        ai = df.loc[top300[mask], "ai_skill_count"].values.astype(float)
+        cq[cid] = r.mean()*0.4 + a.mean()*0.3 + min(ai.mean()/5,1)*0.3
+
     scores_arr = df.loc[top300, "score"].values.copy()
     for i in range(len(top300)):
-        q = cq.get(cl[i], 0.5)
-        scores_arr[i] *= (0.92 + q * 0.08)
+        scores_arr[i] *= (0.92 + cq.get(cl[i], 0.5) * 0.08)
     df.loc[top300, "score"] = scores_arr
 
     # Counterfactuals for top 150
     counterfactuals = {}
     for i in range(min(150, len(top300))):
-        cid = top300[i]
-        c = cl[i]
-        same = [j for j in range(len(top300)) if cl[j]==c and j!=i][:20]
-        if not same:
-            counterfactuals[cid] = "unique profile"
-            continue
-        cv = td[i]
-        best_d, best_j = float("inf"), same[0]
-        for j in same:
-            d = np.linalg.norm(cv - td[j])
-            if d < best_d: best_d, best_j = d, j
-        twin = top300[best_j]
-        de = ecs_arr[i] - ecs_arr[best_j]
-        dr = resp_arr[i] - resp_arr[best_j]
-        da = ai_arr[i] - ai_arr[best_j]
-        if abs(de)>0.1:
-            counterfactuals[cid] = f"stronger evidence ({ecs_arr[i]:.2f} vs {ecs_arr[best_j]:.2f})"
-        elif abs(dr)>0.2:
-            counterfactuals[cid] = f"{'better' if dr>0 else 'lower'} recruiter engagement"
-        elif abs(da)>2:
-            counterfactuals[cid] = f"{int(ai_arr[i])} vs {int(ai_arr[best_j])} AI skills"
-        else:
-            counterfactuals[cid] = "balanced profile vs comparable candidate"
-    print(f"[5/6] Twin resolution done ({time.time()-T0:.0f}s)")
+        counterfactuals[top300[i]] = generate_counterfactual(df, top300, cl, i)
+    print(f"  {nc} clusters, {len(counterfactuals)} counterfactuals ({time.time()-T0:.0f}s)")
 
-    # 6. Rank + output
+    # 6. Rank + tie-break
+    print("\n[6/7] Ranking + reasoning...")
     df["candidate_id"] = df.index
     df["score_r"] = df["score"].round(4)
     df = df.sort_values(["score_r","candidate_id"], ascending=[False,True])
@@ -199,18 +374,40 @@ def main():
         rows.append({"candidate_id":cid,"rank":rank,"score":float(row["score_r"]),"reasoning":r_text})
 
     out = pd.DataFrame(rows)
-    out.to_csv(OUTPUT, index=False)
+    out.to_csv(output, index=False)
 
+    # 7. Validation
+    print("\n[7/7] Local validation...")
+    metrics = local_validation(df, cm)
+    print(f"  NDCG@10 (est): {metrics['NDCG@10']:.3f}")
+    print(f"  NDCG@50 (est): {metrics['NDCG@50']:.3f}")
+    print(f"  P@10:          {metrics['P@10']:.1%}")
+    print(f"  Honeypot rate: {metrics['honeypot_rate']:.1%}")
+
+    # Summary
     tech = sum(1 for _,r in out.iterrows()
                if any(k in cm.get(r["candidate_id"],{}).get("profile",{}).get("current_title","").lower() for k in TECH_KW))
-    print(f"\n{'='*60}")
-    print(f"DONE in {time.time()-T0:.0f}s")
-    print(f"{'='*60}")
+    print(f"\n{'='*65}")
+    print(f"DONE in {time.time()-T0:.0f}s | Output: {output}")
+    print(f"{'='*65}")
     for _,r in out.head(10).iterrows():
         c=cm.get(r["candidate_id"],{})
-        print(f"  #{r['rank']} {r['candidate_id']} | {c.get('profile',{}).get('current_title','?')} | {r['score']:.4f}")
-    print(f"\nTech: {tech}/100 | Non-tech: {100-tech}/100")
-    print(f"\nReasoning:\n  {out.iloc[0]['reasoning'][:200]}")
+        t=c.get("profile",{}).get("current_title","?")
+        y=c.get("profile",{}).get("years_of_experience",0)
+        print(f"  #{r['rank']} {r['candidate_id']} | {t} ({y}y) | {r['score']:.4f}")
+    print(f"\nTech: {tech}/100 | Non-tech: {100-tech}/100 | Honeypots: {metrics['honeypot_rate']:.0%}")
 
-if __name__=="__main__":
+    # Counterfactual variety
+    cf_types = {}
+    for cf in counterfactuals.values():
+        key = cf.split("—")[0].split(",")[0].strip()[:30]
+        cf_types[key] = cf_types.get(key, 0) + 1
+    print(f"\nCounterfactual variety: {len(cf_types)} unique types")
+    for k, v in sorted(cf_types.items(), key=lambda x: -x[1])[:5]:
+        print(f"  [{v}x] {k}")
+
+    return out
+
+
+if __name__ == "__main__":
     main()
