@@ -226,13 +226,14 @@ def extract_candidate_features(candidate: Dict[str, Any]) -> Dict[str, float]:
     features["job_count"] = career["job_count"]
 
     # === Skills ===
-    skills = extract_skills_features(candidate.get("skills", []))
-    features["skill_count"] = skills["skill_count"]
-    features["ai_skill_count"] = skills["ai_skill_count"]
-    features["backend_skill_count"] = skills["backend_skill_count"]
-    features["data_skill_count"] = skills["data_skill_count"]
-    features["avg_proficiency"] = skills["avg_proficiency"]
-    features["total_endorsements"] = skills["total_endorsements"]
+    raw_skills = candidate.get("skills", [])
+    skills_features = extract_skills_features(raw_skills)
+    features["skill_count"] = skills_features["skill_count"]
+    features["ai_skill_count"] = skills_features["ai_skill_count"]
+    features["backend_skill_count"] = skills_features["backend_skill_count"]
+    features["data_skill_count"] = skills_features["data_skill_count"]
+    features["avg_proficiency"] = skills_features["avg_proficiency"]
+    features["total_endorsements"] = skills_features["total_endorsements"]
 
     # === Claim vs Assessment ===
     signals = candidate.get("redrob_signals", {})
@@ -353,10 +354,10 @@ def extract_candidate_features(candidate: Dict[str, Any]) -> Dict[str, float]:
     features["has_publications"] = float(len(publications_raw) > 0)
 
     # === Skill breadth vs depth ===
-    num_skills = len(skills)
+    num_skills = len(raw_skills)
     if num_skills > 0:
         proficiencies = []
-        for s in skills:
+        for s in raw_skills:
             if isinstance(s, dict):
                 proficiencies.append(s.get("proficiency", 0))
             else:
