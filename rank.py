@@ -458,10 +458,34 @@ def main():
         ecs_d = {"ecs":float(row["ecs"]),"axes_consistent":int(row["axes_consistent"]),
                  "contradictions":row.get("contradictions",[])}
         r_text = generate_reasoning(rank, row.to_dict(), ecs_d, cf, title, yoe)
-        rows.append({"candidate_id":cid,"rank":rank,"score":float(row["score_r"]),"reasoning":r_text})
+        rows.append({
+            "candidate_id":cid,"rank":rank,"score":float(row["score_r"]),"reasoning":r_text,
+            "ecs":float(row["ecs"]),"jd_similarity":float(row.get("jd_similarity",0)),
+            "ai_skill_count":int(row.get("ai_skill_count",0)),
+            "response_rate":float(row.get("response_rate",0)),
+            "interview_completion":float(row.get("interview_completion",0)),
+            "years_of_experience":yoe,
+        })
 
     out = pd.DataFrame(rows)
     out.to_csv(output, index=False)
+
+    # Save lightweight profiles JSON for Streamlit app
+    profiles_for_app = {}
+    for cid in df.head(100).index:
+        c = cm.get(cid, {})
+        profiles_for_app[cid] = {
+            "profile": c.get("profile", {}),
+            "skills": c.get("skills", []),
+            "career_history": c.get("career_history", []),
+            "redrob_signals": c.get("redrob_signals", {}),
+            "projects": c.get("projects", []),
+            "publications": c.get("publications", []),
+        }
+    profiles_path = os.path.join(os.path.dirname(output), "ranked_profiles.json")
+    with open(profiles_path, "w", encoding="utf-8") as f:
+        json.dump(profiles_for_app, f)
+    print(f"  Saved {len(profiles_for_app)} profiles to {profiles_path}")
 
     # 7. Validation
     print("\n[7/7] Local validation...")

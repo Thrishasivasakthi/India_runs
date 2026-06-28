@@ -1,101 +1,101 @@
-candidate_id,rank,score,reasoning
-CAND_0042506,1,1.6266,"Search Engineer, 4 yrs — ECS 89/100 (4/4 axes) — 82% interview, 10 AI skills"
-CAND_0058688,2,1.5735,"AI Engineer, 7 yrs — ECS 86/100 (3/4 axes) — 74% response, 96% interview"
-CAND_0000031,3,1.563,"Recommendation Systems Engineer, 6 yrs — ECS 74/100 (2/4 axes) — 91% response, 11 AI skills"
-CAND_0013536,4,1.5613,"Applied ML Engineer, 14 yrs — ECS 71/100 (2/4 axes) — 87% response, 78% interview"
-CAND_0013613,5,1.5526,"Machine Learning Engineer, 5 yrs — ECS 90/100 (4/4 axes) — 73% response, 9 AI skills"
-CAND_0039754,6,1.5349,"Senior Applied Scientist, 16 yrs — ECS 80/100 (3/4 axes) — 81% response, 98% interview"
-CAND_0077956,7,1.5218,"Computer Vision Engineer, 6 yrs — ECS 81/100 (3/4 axes) — 88% response, 100% interview"
-CAND_0064904,8,1.52,"AI Engineer, 5 yrs — ECS 96/100 (4/4 axes) — 78% response, 85% interview"
-CAND_0044855,9,1.5106,"Senior Data Scientist, 7 yrs — ECS 95/100 (4/4 axes) — 90% interview, 8 AI skills"
-CAND_0069905,10,1.5082,"Applied ML Engineer, 7 yrs — ECS 79/100 (2/4 axes) — 78% response, 93% interview"
-CAND_0066376,11,1.4975,"Applied ML Engineer, 6 yrs — ECS 86/100 (3/4 axes) — 77% interview, 10 AI skills"
-CAND_0009691,12,1.4955,"Applied ML Engineer, 6 yrs — ECS 95/100 (4/4 axes) — 8 AI skills, production exp"
-CAND_0055992,13,1.4892,"AI Engineer, 17 yrs — ECS 78/100 (3/4 axes) — 72% response, 91% interview"
-CAND_0002344,14,1.483,"Senior Software Engineer (ML), 5 yrs — ECS 81/100 (3/4 axes) — 83% response, 87% interview"
-CAND_0046525,15,1.4723,"Senior Machine Learning Engineer, 6 yrs — ECS 69/100 (2/4 axes) — 88% response, 81% interview"
-CAND_0071974,16,1.4703,"Senior AI Engineer, 8 yrs — ECS 72/100 (3/4 axes) — 76% response, 85% interview"
-CAND_0007391,17,1.4686,"Data Scientist, 4 yrs — ECS 78/100 (3/4 axes) — 79% response, 71% interview"
-CAND_0047721,18,1.4667,"Senior Data Scientist, 7 yrs — ECS 96/100 (4/4 axes) — 74% interview, 7 AI skills"
-CAND_0029367,19,1.4613,"Senior Data Scientist, 6 yrs — ECS 62/100 (1/4 axes) — 77% response, 11 AI skills"
-CAND_0049896,20,1.4598,"Search Engineer, 7 yrs — ECS 60/100 (2/4 axes) — 10 AI skills, production exp"
-CAND_0050876,21,1.4567,"Applied ML Engineer, 6 yrs — ECS 92/100 (4/4 axes) — 97% interview, 7 AI skills"
-CAND_0049538,22,1.4564,"Applied ML Engineer, 6 yrs — ECS 75/100 (3/4 axes) — 72% response, 9 AI skills"
-CAND_0084819,23,1.4528,"Search Engineer, 4 yrs — ECS 85/100 (3/4 axes) — 74% response, 82% interview"
-CAND_0024466,24,1.4486,"Search Engineer, 5 yrs — ECS 82/100 (4/4 axes) — 9 AI skills, production exp"
-CAND_0015528,25,1.4476,"Applied ML Engineer, 7 yrs — ECS 88/100 (4/4 axes) — 72% interview, 7 AI skills"
-CAND_0042359,26,1.4447,"Data Scientist, 7 yrs — ECS 73/100 (3/4 axes) — 76% response, 92% interview"
-CAND_0091909,27,1.4443,"Machine Learning Engineer, 7 yrs — ECS 76/100 (3/4 axes) — 8 AI skills, production exp"
-CAND_0054318,28,1.4401,"AI Research Engineer, 4 yrs — ECS 74/100 (3/4 axes) — 87% response, 80% interview"
-CAND_0018454,29,1.4378,"Data Scientist, 5 yrs — ECS 73/100 (2/4 axes) — 74% interview, 12 AI skills"
-CAND_0078002,30,1.4372,"Machine Learning Engineer, 6 yrs — ECS 89/100 (4/4 axes) — 86% response, 86% interview"
-CAND_0081686,31,1.437,"Search Engineer, 6 yrs — ECS 89/100 (4/4 axes) — 91% response, 86% interview"
-CAND_0009024,32,1.4339,"Search Engineer, 5 yrs — ECS 79/100 (4/4 axes) — 8 AI skills, production exp"
-CAND_0093547,33,1.4337,"Senior Machine Learning Engineer, 3 yrs — ECS 77/100 (3/4 axes) — 75% response, 97% interview"
-CAND_0001610,34,1.4333,"Machine Learning Engineer, 3 yrs — ECS 62/100 (3/4 axes) — 9 AI skills, production exp"
-CAND_0074735,35,1.4323,"Applied ML Engineer, 6 yrs — ECS 85/100 (3/4 axes) — 77% response, 78% interview"
-CAND_0097176,36,1.4297,"ML Engineer, 6 yrs — ECS 66/100 (2/4 axes) — 76% response, 87% interview"
-CAND_0089552,37,1.4291,"Machine Learning Engineer, 6 yrs — ECS 88/100 (4/4 axes) — 7 AI skills, production exp"
-CAND_0061339,38,1.4287,"Search Engineer, 4 yrs — ECS 80/100 (3/4 axes) — 90% response, 7 AI skills"
-CAND_0008978,39,1.4246,"Junior ML Engineer, 7 yrs — ECS 66/100 (3/4 axes) — 98% interview, 10 AI skills"
-CAND_0011687,40,1.4223,"Senior NLP Engineer, 8 yrs — ECS 84/100 (3/4 axes) — 89% response, 77% interview"
-CAND_0044487,41,1.4219,"Data Scientist, 6 yrs — ECS 74/100 (3/4 axes) — 11 AI skills, production exp"
-CAND_0041669,42,1.4205,"Recommendation Systems Engineer, 8 yrs — ECS 84/100 (4/4 axes) — 77% response, 93% interview"
-CAND_0058517,43,1.4133,"Computer Vision Engineer, 5 yrs — ECS 75/100 (3/4 axes) — 11 AI skills, production exp"
-CAND_0055995,44,1.4131,"ML Engineer, 3 yrs — ECS 68/100 (2/4 axes) — 84% response, 82% interview"
-CAND_0037000,45,1.4128,"Search Engineer, 3 yrs — ECS 74/100 (3/4 axes) — 10 AI skills, production exp"
-CAND_0091552,46,1.4113,"Software Engineer, 8 yrs — ECS 63/100 (3/4 axes) — 72% response, 87% interview"
-CAND_0033649,47,1.4044,"Data Scientist, 5 yrs — ECS 65/100 (1/4 axes) — 77% response, 87% interview"
-CAND_0074486,48,1.404,"Computer Vision Engineer, 6 yrs — ECS 64/100 (2/4 axes) — 76% response, 73% interview"
-CAND_0078810,49,1.4005,"Senior Software Engineer (ML), 7 yrs — ECS 66/100 (2/4 axes) — 80% response, 9 AI skills"
-CAND_0058146,50,1.3983,"AI Research Engineer, 5 yrs — ECS 75/100 (3/4 axes) — 79% response, 95% interview"
-CAND_0039838,51,1.3977,"Recommendation Systems Engineer, 5 yrs — ECS 77/100 (2/4 axes) — 80% response, 95% interview"
-CAND_0012957,52,1.3971,"Search Engineer, 5 yrs — ECS 92/100 (4/4 axes) — 94% interview, 6 AI skills"
-CAND_0081846,53,1.397,"Lead AI Engineer, 7 yrs — ECS 84/100 (3/4 axes) — 73% response, 94% interview"
-CAND_0091745,54,1.3961,"Junior ML Engineer, 6 yrs — ECS 67/100 (3/4 axes) — 99% interview, 10 AI skills"
-CAND_0065878,55,1.3941,"Senior Data Scientist, 8 yrs — ECS 89/100 (3/4 axes) — 8 AI skills, production exp"
-CAND_0056058,56,1.3923,"Junior ML Engineer, 3 yrs — ECS 61/100 (1/4 axes) — 81% response, 80% interview"
-CAND_0016163,57,1.3912,"Applied ML Engineer, 7 yrs — ECS 74/100 (3/4 axes) — 72% response, 8 AI skills"
-CAND_0020049,58,1.3907,"Senior Software Engineer (ML), 4 yrs — ECS 64/100 (2/4 axes) — 78% response, 78% interview"
-CAND_0054123,59,1.3835,"Applied ML Engineer, 5 yrs — ECS 81/100 (4/4 axes) — 87% response, 71% interview"
-CAND_0038206,60,1.3832,"Data Scientist, 4 yrs — ECS 76/100 (2/4 axes) — 81% response, 100% interview"
-CAND_0095207,61,1.3822,"Computer Vision Engineer, 4 yrs — ECS 68/100 (3/4 axes) — 72% response, 93% interview"
-CAND_0031593,62,1.3819,"Search Engineer, 8 yrs — ECS 90/100 (3/4 axes) — 79% interview, 7 AI skills"
-CAND_0086151,63,1.3792,"Recommendation Systems Engineer, 8 yrs — ECS 91/100 (4/4 axes) — 6 AI skills, production exp"
-CAND_0085335,64,1.3764,"ML Engineer, 3 yrs — ECS 72/100 (2/4 axes) — 83% response, 99% interview"
-CAND_0001819,65,1.3737,"ML Engineer, 4 yrs — ECS 70/100 (3/4 axes) — 75% response, 8 AI skills"
-CAND_0046353,66,1.3736,"ML Engineer, 6 yrs — ECS 73/100 (3/4 axes) — 73% response, 85% interview"
-CAND_0041568,67,1.3713,"Search Engineer, 5 yrs — ECS 83/100 (2/4 axes) — 79% interview, 7 AI skills"
-CAND_0005883,68,1.3689,"Computer Vision Engineer, 4 yrs — ECS 71/100 (3/4 axes) — 78% response, 92% interview"
-CAND_0086022,69,1.3677,"Senior Applied Scientist, 5 yrs — ECS 68/100 (2/4 axes) — 10 AI skills, production exp"
-CAND_0026942,70,1.3645,"Junior ML Engineer, 6 yrs — ECS 75/100 (3/4 axes) — 84% response, 8 AI skills"
-CAND_0088385,71,1.3618,"Computer Vision Engineer, 7 yrs — ECS 78/100 (2/4 axes) — 71% interview, 8 AI skills"
-CAND_0039383,72,1.3573,"Applied ML Engineer, 7 yrs — ECS 87/100 (3/4 axes) — 97% interview, 7 AI skills"
-CAND_0052682,73,1.357,"NLP Engineer, 7 yrs — ECS 95/100 (4/4 axes) — 88% response, 88% interview"
-CAND_0074731,74,1.357,"Data Scientist, 7 yrs — ECS 73/100 (3/4 axes) — 81% interview, 8 AI skills"
-CAND_0079888,75,1.3557,"Junior ML Engineer, 4 yrs — ECS 68/100 (3/4 axes) — 84% response, 96% interview"
-CAND_0049978,76,1.3548,"Senior Software Engineer (ML), 7 yrs — ECS 79/100 (3/4 axes) — 71% response, 9 AI skills"
-CAND_0078042,77,1.3541,"Applied ML Engineer, 5 yrs — ECS 84/100 (3/4 axes) — 91% response, 92% interview"
-CAND_0018499,78,1.352,"Senior Machine Learning Engineer, 7 yrs — ECS 86/100 (3/4 axes) — 80% interview, 7 AI skills"
-CAND_0089381,79,1.3429,"Computer Vision Engineer, 6 yrs — ECS 77/100 (3/4 axes) — 81% response, 81% interview"
-CAND_0024990,80,1.3424,"Junior ML Engineer, 5 yrs — ECS 75/100 (3/4 axes) — 83% response, 8 AI skills"
-CAND_0063622,81,1.3408,"Computer Vision Engineer, 5 yrs — ECS 73/100 (3/4 axes) — 92% response, 9 AI skills"
-CAND_0081053,82,1.34,"NLP Engineer, 5 yrs — ECS 90/100 (4/4 axes) — 83% response, 79% interview"
-CAND_0091254,83,1.3364,"AI Research Engineer, 5 yrs — ECS 76/100 (3/4 axes) — 71% interview, 10 AI skills"
-CAND_0001940,84,1.3356,"AI Research Engineer, 4 yrs — ECS 60/100 (2/4 axes) — 87% response, 9 AI skills"
-CAND_0059795,85,1.3348,"Senior Software Engineer (ML), 6 yrs — ECS 70/100 (3/4 axes) — 75% response, 89% interview"
-CAND_0010257,86,1.3345,"Senior Data Scientist, 6 yrs — ECS 86/100 (4/4 axes) — 72% response, 92% interview"
-CAND_0087744,87,1.3333,"Senior Software Engineer (ML), 4 yrs — ECS 72/100 (3/4 axes) — 88% response, 76% interview"
-CAND_0009837,88,1.3332,"Senior Data Scientist, 4 yrs — ECS 68/100 (3/4 axes) — 100% interview, 8 AI skills"
-CAND_0052328,89,1.3312,"Recommendation Systems Engineer, 6 yrs — ECS 76/100 (3/4 axes) — 79% response, 95% interview"
-CAND_0036173,90,1.3308,"Senior Software Engineer (ML), 3 yrs — ECS 73/100 (3/4 axes) — 90% interview, 9 AI skills"
-CAND_0070398,91,1.3282,"Machine Learning Engineer, 7 yrs — ECS 85/100 (3/4 axes) — 8 AI skills, production exp"
-CAND_0040887,92,1.3271,"Machine Learning Engineer, 5 yrs — ECS 73/100 (3/4 axes) — 84% response, 80% interview"
-CAND_0087630,93,1.3196,"AI Engineer, 7 yrs — ECS 80/100 (4/4 axes) — 100% interview, 6 AI skills"
-CAND_0039962,94,1.3179,"ML Engineer, 6 yrs — ECS 69/100 (3/4 axes) — 74% response, 85% interview"
-CAND_0032515,95,1.3159,"Machine Learning Engineer, 5 yrs — ECS 82/100 (3/4 axes) — 80% interview, 7 AI skills"
-CAND_0088878,96,1.3138,"Senior Software Engineer (ML), 4 yrs — ECS 63/100 (2/4 axes) — 77% interview, 8 AI skills"
-CAND_0027801,97,1.311,"NLP Engineer, 7 yrs — ECS 75/100 (3/4 axes) — 7 AI skills, production exp"
-CAND_0020494,98,1.3109,"AI Research Engineer, 6 yrs — ECS 78/100 (3/4 axes) — 9 AI skills, production exp"
-CAND_0013393,99,1.3077,"ML Engineer, 5 yrs — ECS 67/100 (1/4 axes) — 99% interview, 8 AI skills"
-CAND_0061655,100,1.2845,"Machine Learning Engineer, 5 yrs — ECS 62/100 (3/4 axes) — 88% response, 85% interview"
+candidate_id,rank,score,reasoning,ecs,jd_similarity,ai_skill_count,response_rate,interview_completion,years_of_experience
+CAND_0042506,1,1.6266,"Search Engineer, 4 yrs — ECS 89/100 (4/4 axes) — 82% interview, 10 AI skills",0.8855693982591953,0.42884498834609985,10,0.48,0.82,4.2
+CAND_0058688,2,1.5735,"AI Engineer, 7 yrs — ECS 86/100 (3/4 axes) — 74% response, 96% interview",0.8586897345120125,0.4617066979408264,10,0.74,0.96,6.7
+CAND_0000031,3,1.563,"Recommendation Systems Engineer, 6 yrs — ECS 74/100 (2/4 axes) — 91% response, 11 AI skills",0.7367932661186561,0.3464558720588684,11,0.91,0.6,6.0
+CAND_0013536,4,1.5613,"Applied ML Engineer, 14 yrs — ECS 71/100 (2/4 axes) — 87% response, 78% interview",0.7131057745645064,0.34643781185150146,9,0.87,0.78,14.1
+CAND_0013613,5,1.5526,"Machine Learning Engineer, 5 yrs — ECS 90/100 (4/4 axes) — 73% response, 9 AI skills",0.9034651729127686,0.41805630922317505,9,0.73,0.63,4.7
+CAND_0039754,6,1.5349,"Senior Applied Scientist, 16 yrs — ECS 80/100 (3/4 axes) — 81% response, 98% interview",0.8041278751460437,0.5605356693267822,8,0.81,0.98,16.2
+CAND_0077956,7,1.5218,"Computer Vision Engineer, 6 yrs — ECS 81/100 (3/4 axes) — 88% response, 100% interview",0.8117531042583532,0.5082483291625977,9,0.88,1.0,6.4
+CAND_0064904,8,1.52,"AI Engineer, 5 yrs — ECS 96/100 (4/4 axes) — 78% response, 85% interview",0.9624248824795512,0.465707004070282,8,0.78,0.85,4.9
+CAND_0044855,9,1.5106,"Senior Data Scientist, 7 yrs — ECS 95/100 (4/4 axes) — 90% interview, 8 AI skills",0.9536733121041926,0.4268180727958679,8,0.57,0.9,6.6
+CAND_0069905,10,1.5082,"Applied ML Engineer, 7 yrs — ECS 79/100 (2/4 axes) — 78% response, 93% interview",0.7891661302475855,0.4606533646583557,10,0.78,0.93,6.6
+CAND_0066376,11,1.4975,"Applied ML Engineer, 6 yrs — ECS 86/100 (3/4 axes) — 77% interview, 10 AI skills",0.8557566482610729,0.3632358908653259,10,0.51,0.77,5.7
+CAND_0009691,12,1.4955,"Applied ML Engineer, 6 yrs — ECS 95/100 (4/4 axes) — 8 AI skills, JD match 39%",0.9503912009850839,0.3891819715499878,8,0.64,0.57,6.2
+CAND_0055992,13,1.4892,"AI Engineer, 17 yrs — ECS 78/100 (3/4 axes) — 72% response, 91% interview",0.782209900962099,0.4312802255153656,7,0.72,0.91,16.9
+CAND_0002344,14,1.483,"Senior Software Engineer (ML), 5 yrs — ECS 81/100 (3/4 axes) — 83% response, 87% interview",0.8099796290640391,0.3976403474807739,9,0.83,0.87,4.7
+CAND_0046525,15,1.4723,"Senior Machine Learning Engineer, 6 yrs — ECS 69/100 (2/4 axes) — 88% response, 81% interview",0.6944342223117026,0.5571169257164001,9,0.88,0.81,6.1
+CAND_0071974,16,1.4703,"Senior AI Engineer, 8 yrs — ECS 72/100 (3/4 axes) — 76% response, 85% interview",0.7159902443435203,0.5251469612121582,8,0.76,0.85,7.8
+CAND_0007391,17,1.4686,"Data Scientist, 4 yrs — ECS 78/100 (3/4 axes) — 79% response, 71% interview",0.783339498047732,0.40893763303756714,10,0.79,0.71,4.3
+CAND_0047721,18,1.4667,"Senior Data Scientist, 7 yrs — ECS 96/100 (4/4 axes) — 74% interview, 7 AI skills",0.9578529897397359,0.3603403866291046,7,0.49,0.74,7.0
+CAND_0029367,19,1.4613,"Senior Data Scientist, 6 yrs — ECS 62/100 (1/4 axes) — 77% response, 11 AI skills",0.616120688028195,0.4430875778198242,11,0.77,0.58,5.7
+CAND_0049896,20,1.4598,"Search Engineer, 7 yrs — ECS 60/100 (2/4 axes) — 10 AI skills, JD match 37%",0.6043334434971221,0.36604833602905273,10,0.43,0.68,7.3
+CAND_0050876,21,1.4567,"Applied ML Engineer, 6 yrs — ECS 92/100 (4/4 axes) — 97% interview, 7 AI skills",0.9241398044562008,0.40171539783477783,7,0.67,0.97,6.0
+CAND_0049538,22,1.4564,"Applied ML Engineer, 6 yrs — ECS 75/100 (3/4 axes) — 72% response, 9 AI skills",0.7482006585798073,0.42696064710617065,9,0.72,0.67,5.8
+CAND_0084819,23,1.4528,"Search Engineer, 4 yrs — ECS 85/100 (3/4 axes) — 74% response, 82% interview",0.8532911787440469,0.4237474799156189,8,0.74,0.82,4.5
+CAND_0024466,24,1.4486,"Search Engineer, 5 yrs — ECS 82/100 (4/4 axes) — 9 AI skills, JD match 42%",0.8175388636161449,0.4158310294151306,9,0.47,0.56,5.2
+CAND_0015528,25,1.4476,"Applied ML Engineer, 7 yrs — ECS 88/100 (4/4 axes) — 72% interview, 7 AI skills",0.8762327638769682,0.3768082857131958,7,0.53,0.72,7.4
+CAND_0042359,26,1.4447,"Data Scientist, 7 yrs — ECS 73/100 (3/4 axes) — 76% response, 92% interview",0.7343759884842058,0.46431028842926025,8,0.76,0.92,6.9
+CAND_0091909,27,1.4443,"Machine Learning Engineer, 7 yrs — ECS 76/100 (3/4 axes) — 8 AI skills, JD match 35%",0.7596274628897915,0.34647247195243835,8,0.65,0.66,6.9
+CAND_0054318,28,1.4401,"AI Research Engineer, 4 yrs — ECS 74/100 (3/4 axes) — 87% response, 80% interview",0.7422912252497978,0.5522423982620239,8,0.87,0.8,3.5
+CAND_0018454,29,1.4378,"Data Scientist, 5 yrs — ECS 73/100 (2/4 axes) — 74% interview, 12 AI skills",0.7328176652896461,0.3676604628562927,12,0.62,0.74,4.6
+CAND_0078002,30,1.4372,"Machine Learning Engineer, 6 yrs — ECS 89/100 (4/4 axes) — 86% response, 86% interview",0.8913428579023005,0.39216068387031555,7,0.86,0.86,6.3
+CAND_0081686,31,1.437,"Search Engineer, 6 yrs — ECS 89/100 (4/4 axes) — 91% response, 86% interview",0.8862508536042322,0.4139057993888855,7,0.91,0.86,6.0
+CAND_0009024,32,1.4339,"Search Engineer, 5 yrs — ECS 79/100 (4/4 axes) — 8 AI skills, JD match 37%",0.7894172401176202,0.3719606101512909,8,0.46,0.6,5.2
+CAND_0093547,33,1.4337,"Senior Machine Learning Engineer, 3 yrs — ECS 77/100 (3/4 axes) — 75% response, 97% interview",0.7662520382551038,0.5394040942192078,8,0.75,0.97,2.9
+CAND_0001610,34,1.4333,"Machine Learning Engineer, 3 yrs — ECS 62/100 (3/4 axes) — 9 AI skills, JD match 42%",0.6177276777331054,0.4188040494918823,9,0.57,0.7,3.0
+CAND_0074735,35,1.4323,"Applied ML Engineer, 6 yrs — ECS 85/100 (3/4 axes) — 77% response, 78% interview",0.8524338375065961,0.39059188961982727,7,0.77,0.78,5.5
+CAND_0097176,36,1.4297,"ML Engineer, 6 yrs — ECS 66/100 (2/4 axes) — 76% response, 87% interview",0.6594442703436961,0.3883867859840393,8,0.76,0.87,5.9
+CAND_0089552,37,1.4291,"Machine Learning Engineer, 6 yrs — ECS 88/100 (4/4 axes) — 7 AI skills, JD match 43%",0.8816337084106901,0.4295618534088135,7,0.49,0.56,6.0
+CAND_0061339,38,1.4287,"Search Engineer, 4 yrs — ECS 80/100 (3/4 axes) — 90% response, 7 AI skills",0.7978394487245789,0.3390038013458252,7,0.9,0.65,4.2
+CAND_0008978,39,1.4246,"Junior ML Engineer, 7 yrs — ECS 66/100 (3/4 axes) — 98% interview, 10 AI skills",0.6584719945135198,0.45469415187835693,10,0.29,0.98,6.7
+CAND_0011687,40,1.4223,"Senior NLP Engineer, 8 yrs — ECS 84/100 (3/4 axes) — 89% response, 77% interview",0.8365673137814428,0.5003769993782043,8,0.89,0.77,7.8
+CAND_0044487,41,1.4219,"Data Scientist, 6 yrs — ECS 74/100 (3/4 axes) — 11 AI skills, JD match 42%",0.7388763558275164,0.41554439067840576,11,0.57,0.61,6.1
+CAND_0041669,42,1.4205,"Recommendation Systems Engineer, 8 yrs — ECS 84/100 (4/4 axes) — 77% response, 93% interview",0.8417280921561741,0.4632655084133148,6,0.77,0.93,8.0
+CAND_0058517,43,1.4133,"Computer Vision Engineer, 5 yrs — ECS 75/100 (3/4 axes) — 11 AI skills, JD match 46%",0.7450830898664023,0.4596456289291382,11,0.36,0.53,5.1
+CAND_0055995,44,1.4131,"ML Engineer, 3 yrs — ECS 68/100 (2/4 axes) — 84% response, 82% interview",0.679655233229874,0.44754672050476074,10,0.84,0.82,3.4
+CAND_0037000,45,1.4128,"Search Engineer, 3 yrs — ECS 74/100 (3/4 axes) — 10 AI skills, JD match 43%",0.7419626578776081,0.43064171075820923,10,0.61,0.62,2.7
+CAND_0091552,46,1.4113,"Software Engineer, 8 yrs — ECS 63/100 (3/4 axes) — 72% response, 87% interview",0.6262907014348641,0.3950261175632477,9,0.72,0.87,7.8
+CAND_0033649,47,1.4044,"Data Scientist, 5 yrs — ECS 65/100 (1/4 axes) — 77% response, 87% interview",0.6525407310514046,0.44349807500839233,8,0.77,0.87,5.3
+CAND_0074486,48,1.404,"Computer Vision Engineer, 6 yrs — ECS 64/100 (2/4 axes) — 76% response, 73% interview",0.6396051152747116,0.4377938508987427,10,0.76,0.73,5.5
+CAND_0078810,49,1.4005,"Senior Software Engineer (ML), 7 yrs — ECS 66/100 (2/4 axes) — 80% response, 9 AI skills",0.6644644527574673,0.4565314054489136,9,0.8,0.7,6.9
+CAND_0058146,50,1.3983,"AI Research Engineer, 5 yrs — ECS 75/100 (3/4 axes) — 79% response, 95% interview",0.7468625461599716,0.47936585545539856,8,0.79,0.95,5.1
+CAND_0039838,51,1.3977,"Recommendation Systems Engineer, 5 yrs — ECS 77/100 (2/4 axes) — 80% response, 95% interview",0.7726879355900628,0.4704112112522125,8,0.8,0.95,4.9
+CAND_0012957,52,1.3971,"Search Engineer, 5 yrs — ECS 92/100 (4/4 axes) — 94% interview, 6 AI skills",0.9153737444318125,0.3860217332839966,6,0.67,0.94,4.9
+CAND_0081846,53,1.397,"Lead AI Engineer, 7 yrs — ECS 84/100 (3/4 axes) — 73% response, 94% interview",0.8388708457381316,0.5640416741371155,7,0.73,0.94,6.7
+CAND_0091745,54,1.3961,"Junior ML Engineer, 6 yrs — ECS 67/100 (3/4 axes) — 99% interview, 10 AI skills",0.668667758044511,0.44767576456069946,10,0.53,0.99,5.9
+CAND_0065878,55,1.3941,"Senior Data Scientist, 8 yrs — ECS 89/100 (3/4 axes) — 8 AI skills, JD match 40%",0.8932468288242174,0.40217435359954834,8,0.48,0.61,7.8
+CAND_0056058,56,1.3923,"Junior ML Engineer, 3 yrs — ECS 61/100 (1/4 axes) — 81% response, 80% interview",0.608645016057665,0.5517398118972778,10,0.81,0.8,3.4
+CAND_0016163,57,1.3912,"Applied ML Engineer, 7 yrs — ECS 74/100 (3/4 axes) — 72% response, 8 AI skills",0.7413434040040077,0.4881804585456848,8,0.72,0.62,6.7
+CAND_0020049,58,1.3907,"Senior Software Engineer (ML), 4 yrs — ECS 64/100 (2/4 axes) — 78% response, 78% interview",0.6427016730966965,0.3929624557495117,8,0.78,0.78,3.8
+CAND_0054123,59,1.3835,"Applied ML Engineer, 5 yrs — ECS 81/100 (4/4 axes) — 87% response, 71% interview",0.8119008485331687,0.41897067427635193,6,0.87,0.71,4.7
+CAND_0038206,60,1.3832,"Data Scientist, 4 yrs — ECS 76/100 (2/4 axes) — 81% response, 100% interview",0.7597259640300803,0.47458434104919434,8,0.81,1.0,3.5
+CAND_0095207,61,1.3822,"Computer Vision Engineer, 4 yrs — ECS 68/100 (3/4 axes) — 72% response, 93% interview",0.6824330303608004,0.47051572799682617,7,0.72,0.93,4.0
+CAND_0031593,62,1.3819,"Search Engineer, 8 yrs — ECS 90/100 (3/4 axes) — 79% interview, 7 AI skills",0.8967817421150373,0.4050433933734894,7,0.58,0.79,7.8
+CAND_0086151,63,1.3792,"Recommendation Systems Engineer, 8 yrs — ECS 91/100 (4/4 axes) — 6 AI skills, JD match 37%",0.9064508192175418,0.3690943717956543,6,0.52,0.6,7.7
+CAND_0085335,64,1.3764,"ML Engineer, 3 yrs — ECS 72/100 (2/4 axes) — 83% response, 99% interview",0.7171898228686626,0.4406091868877411,7,0.83,0.99,3.1
+CAND_0001819,65,1.3737,"ML Engineer, 4 yrs — ECS 70/100 (3/4 axes) — 75% response, 8 AI skills",0.7033218334555351,0.443181574344635,8,0.75,0.67,4.4
+CAND_0046353,66,1.3736,"ML Engineer, 6 yrs — ECS 73/100 (3/4 axes) — 73% response, 85% interview",0.7269237804805372,0.5259876251220703,7,0.73,0.85,6.4
+CAND_0041568,67,1.3713,"Search Engineer, 5 yrs — ECS 83/100 (2/4 axes) — 79% interview, 7 AI skills",0.8293319930072227,0.47721725702285767,7,0.52,0.79,5.2
+CAND_0005883,68,1.3689,"Computer Vision Engineer, 4 yrs — ECS 71/100 (3/4 axes) — 78% response, 92% interview",0.7142673662773715,0.5309672355651855,7,0.78,0.92,3.5
+CAND_0086022,69,1.3677,"Senior Applied Scientist, 5 yrs — ECS 68/100 (2/4 axes) — 10 AI skills, JD match 55%",0.6809089823419978,0.552173376083374,10,0.55,0.68,5.3
+CAND_0026942,70,1.3645,"Junior ML Engineer, 6 yrs — ECS 75/100 (3/4 axes) — 84% response, 8 AI skills",0.7517543886063182,0.3968629837036133,8,0.84,0.6,6.0
+CAND_0088385,71,1.3618,"Computer Vision Engineer, 7 yrs — ECS 78/100 (2/4 axes) — 71% interview, 8 AI skills",0.778937368350694,0.42133277654647827,8,0.57,0.71,7.0
+CAND_0039383,72,1.3573,"Applied ML Engineer, 7 yrs — ECS 87/100 (3/4 axes) — 97% interview, 7 AI skills",0.866623321180253,0.37021327018737793,7,0.61,0.97,7.1
+CAND_0052682,73,1.357,"NLP Engineer, 7 yrs — ECS 95/100 (4/4 axes) — 88% response, 88% interview",0.9467669465342969,0.39888352155685425,5,0.88,0.88,6.6
+CAND_0074731,74,1.357,"Data Scientist, 7 yrs — ECS 73/100 (3/4 axes) — 81% interview, 8 AI skills",0.7252255734901271,0.5276327133178711,8,0.58,0.81,6.6
+CAND_0079888,75,1.3557,"Junior ML Engineer, 4 yrs — ECS 68/100 (3/4 axes) — 84% response, 96% interview",0.6764585003718233,0.5186432003974915,7,0.84,0.96,4.3
+CAND_0049978,76,1.3548,"Senior Software Engineer (ML), 7 yrs — ECS 79/100 (3/4 axes) — 71% response, 9 AI skills",0.7898370454676332,0.5415629744529724,9,0.71,0.65,6.6
+CAND_0078042,77,1.3541,"Applied ML Engineer, 5 yrs — ECS 84/100 (3/4 axes) — 91% response, 92% interview",0.8363821833645394,0.41144460439682007,6,0.91,0.92,4.7
+CAND_0018499,78,1.352,"Senior Machine Learning Engineer, 7 yrs — ECS 86/100 (3/4 axes) — 80% interview, 7 AI skills",0.8595146972881026,0.49949997663497925,7,0.61,0.8,7.2
+CAND_0089381,79,1.3429,"Computer Vision Engineer, 6 yrs — ECS 77/100 (3/4 axes) — 81% response, 81% interview",0.7736849604812681,0.419034481048584,6,0.81,0.81,6.0
+CAND_0024990,80,1.3424,"Junior ML Engineer, 5 yrs — ECS 75/100 (3/4 axes) — 83% response, 8 AI skills",0.7528941401782384,0.4751250445842743,8,0.83,0.61,5.2
+CAND_0063622,81,1.3408,"Computer Vision Engineer, 5 yrs — ECS 73/100 (3/4 axes) — 92% response, 9 AI skills",0.7308885662142062,0.36513426899909973,9,0.92,0.6,5.2
+CAND_0081053,82,1.34,"NLP Engineer, 5 yrs — ECS 90/100 (4/4 axes) — 83% response, 79% interview",0.9035525008772222,0.45689040422439575,5,0.83,0.79,5.4
+CAND_0091254,83,1.3364,"AI Research Engineer, 5 yrs — ECS 76/100 (3/4 axes) — 71% interview, 10 AI skills",0.7569260523506477,0.5094951391220093,10,0.53,0.71,5.2
+CAND_0001940,84,1.3356,"AI Research Engineer, 4 yrs — ECS 60/100 (2/4 axes) — 87% response, 9 AI skills",0.5988751274548559,0.45433491468429565,9,0.87,0.51,4.3
+CAND_0059795,85,1.3348,"Senior Software Engineer (ML), 6 yrs — ECS 70/100 (3/4 axes) — 75% response, 89% interview",0.7024805435722151,0.5491023659706116,7,0.75,0.89,5.6
+CAND_0010257,86,1.3345,"Senior Data Scientist, 6 yrs — ECS 86/100 (4/4 axes) — 72% response, 92% interview",0.863896115433135,0.4810120463371277,5,0.72,0.92,6.5
+CAND_0087744,87,1.3333,"Senior Software Engineer (ML), 4 yrs — ECS 72/100 (3/4 axes) — 88% response, 76% interview",0.7183608423167148,0.44466155767440796,8,0.88,0.76,3.9
+CAND_0009837,88,1.3332,"Senior Data Scientist, 4 yrs — ECS 68/100 (3/4 axes) — 100% interview, 8 AI skills",0.6806159088434517,0.35575854778289795,8,0.53,1.0,4.3
+CAND_0052328,89,1.3312,"Recommendation Systems Engineer, 6 yrs — ECS 76/100 (3/4 axes) — 79% response, 95% interview",0.7631555031076717,0.39616140723228455,6,0.79,0.95,6.5
+CAND_0036173,90,1.3308,"Senior Software Engineer (ML), 3 yrs — ECS 73/100 (3/4 axes) — 90% interview, 9 AI skills",0.7308461694165062,0.44663339853286743,9,0.53,0.9,3.2
+CAND_0070398,91,1.3282,"Machine Learning Engineer, 7 yrs — ECS 85/100 (3/4 axes) — 8 AI skills, JD match 47%",0.8470829318329443,0.4723550081253052,8,0.6,0.64,7.2
+CAND_0040887,92,1.3271,"Machine Learning Engineer, 5 yrs — ECS 73/100 (3/4 axes) — 84% response, 80% interview",0.7343027232587098,0.4517250657081604,6,0.84,0.8,4.7
+CAND_0087630,93,1.3196,"AI Engineer, 7 yrs — ECS 80/100 (4/4 axes) — 100% interview, 6 AI skills",0.8024242014504778,0.4171626567840576,6,0.45,1.0,7.2
+CAND_0039962,94,1.3179,"ML Engineer, 6 yrs — ECS 69/100 (3/4 axes) — 74% response, 85% interview",0.6908732437931919,0.3767991065979004,8,0.74,0.85,6.5
+CAND_0032515,95,1.3159,"Machine Learning Engineer, 5 yrs — ECS 82/100 (3/4 axes) — 80% interview, 7 AI skills",0.8206672735277784,0.448580801486969,7,0.54,0.8,5.1
+CAND_0088878,96,1.3138,"Senior Software Engineer (ML), 4 yrs — ECS 63/100 (2/4 axes) — 77% interview, 8 AI skills",0.6340271266180172,0.533875584602356,8,0.31,0.77,4.4
+CAND_0027801,97,1.311,"NLP Engineer, 7 yrs — ECS 75/100 (3/4 axes) — 7 AI skills, JD match 52%",0.7486782052771828,0.5157696008682251,7,0.65,0.68,7.4
+CAND_0020494,98,1.3109,"AI Research Engineer, 6 yrs — ECS 78/100 (3/4 axes) — 9 AI skills, JD match 47%",0.7805977028766543,0.4677058458328247,9,0.26,0.55,5.9
+CAND_0013393,99,1.3077,"ML Engineer, 5 yrs — ECS 67/100 (1/4 axes) — 99% interview, 8 AI skills",0.6653060490574971,0.384015291929245,8,0.33,0.99,5.3
+CAND_0061655,100,1.2845,"Machine Learning Engineer, 5 yrs — ECS 62/100 (3/4 axes) — 88% response, 85% interview",0.6233954516053426,0.40044859051704407,6,0.88,0.85,4.6
