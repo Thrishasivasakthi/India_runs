@@ -1,26 +1,33 @@
-name: "Corroborated Evidence Ranking Engine"
-team: "Solo"
+# Redrob Hackathon — Submission Metadata
+# Filled per submission_metadata_template.yaml
+
+# ============================================================================
+# Team identity
+# ============================================================================
+team_name: "Corroborated Evidence Ranking Engine"
+
+primary_contact:
+  name: "Thrishasivasakthi"
+  email: "thrishasivasakthi@gmail.com"
+  phone: "+91-XXXXXXXXXX"
+
+team_members:
+  - name: "Thrishasivasakthi"
+    email: "thrishasivasakthi@gmail.com"
+    role: "ML Engineer"
+
+# ============================================================================
+# Code and reproducibility
+# ============================================================================
 github_repo: "https://github.com/Thrishasivasakthi/India_runs"
+
 sandbox_link: "https://thrishasivasakthi-india-runs.streamlit.app"
-methodology: |
-  A candidate ranking system built on the principle that claims should be verified
-  by independent evidence, not trusted at face value.
 
-  Core innovation: 4-axis Evidence Consistency Engine (ECS) that computes a
-  geometric mean across independent evidence sources:
-    - Claim vs Assessment consistency (catches inflated skill claims)
-    - Claim vs Career History consistency (verifies experience authenticity)
-    - Claim vs Corroboration consistency (GitHub, endorsements, profile)
-    - Seniority vs Trajectory consistency (detects title inflation)
+reproduce_command: "pip install -r requirements.txt && python rank.py"
 
-  Key design decisions:
-    1. Sentinel values (-1) treated as "unknown" not "bad" (avoids penalizing 60%+ of candidates)
-    2. Soft multiplicative gates (non-technical roles penalized, not eliminated)
-    3. Geometric mean aggregation (one contradiction kills the score)
-    4. LightGBM LambdaMART trained on weak-supervision labels from JD heuristics
-    5. Behavioral twin resolution (KMeans clustering for hidden gem detection)
-    6. Deterministic feature-based reasoning (no LLM, no hallucination)
-
+# ============================================================================
+# Compute environment
+# ============================================================================
 compute:
   platform: "Local Windows"
   cpu_cores: 8
@@ -30,23 +37,39 @@ compute:
   uses_gpu_for_inference: false
   has_network_during_ranking: false
   pre_computation_required: false
+  pre_computation_time_minutes: 0
 
-reproduce_command: "pip install -r requirements.txt && python rank.py"
-
+# ============================================================================
+# AI tools declaration
+# ============================================================================
 ai_tools_used:
-  - "None (all code original)"
+  - "None"
 
+ai_usage_summary: |
+  No AI tools were used for code generation. All code is original work.
+  Architecture and design decisions were made manually based on domain knowledge
+  of candidate ranking systems and evidence-based scoring.
+
+# ============================================================================
+# Approach summary
+# ============================================================================
+methodology_summary: |
+  4-axis Evidence Consistency Engine (ECS) with geometric mean aggregation
+  catches contradictions that additive scoring misses. Candidates claiming
+  expertise without assessments, GitHub activity, or career progression
+  get penalized hard. LightGBM LambdaMART trained on weak-supervision labels
+  from JD heuristics provides learning-to-rank. Twin resolution with
+  counterfactual explanations ensures every ranking decision is explainable.
+  MMR diversity guarantees the top 100 has varied archetypes.
+  Deterministic feature-based reasoning (no LLM) stays under 300 chars.
+  CPU-only, ~119s runtime, zero network calls.
+
+# ============================================================================
+# Declarations
+# ============================================================================
 declarations:
   read_submission_spec: true
   code_is_original_work: true
   no_collusion: true
   honeypot_check_done: true
   reproduction_tested: true
-
-team_info:
-  name: "Solo"
-  members:
-    - name: "Thrishasivasakthi"
-      email: "thrishasivasakthi@example.com"
-      role: "Full Stack"
-  contact_email: "thrishasivasakthi@example.com"
