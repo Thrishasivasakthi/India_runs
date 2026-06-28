@@ -1,6 +1,7 @@
 name: "Corroborated Evidence Ranking Engine"
 team: "Solo"
-github_repo: ""
+github_repo: "https://github.com/Thrishasivasakthi/India_runs"
+sandbox_link: "https://thrishasivasakthi-india-runs.streamlit.app"
 methodology: |
   A candidate ranking system built on the principle that claims should be verified
   by independent evidence, not trusted at face value.
@@ -30,6 +31,8 @@ compute:
   has_network_during_ranking: false
   pre_computation_required: false
 
+reproduce_command: "pip install -r requirements.txt && python rank.py"
+
 ai_tools_used:
   - "None (all code original)"
 
@@ -39,3 +42,11 @@ declarations:
   no_collusion: true
   honeypot_check_done: true
   reproduction_tested: true
+
+team_info:
+  name: "Solo"
+  members:
+    - name: "Thrishasivasakthi"
+      email: "thrishasivasakthi@example.com"
+      role: "Full Stack"
+  contact_email: "thrishasivasakthi@example.com"
